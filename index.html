@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body { background-color: black;}
+    .slider-container { margin: 20px; }
+    .slider-label { font-family: Arial; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="simulation"></div>
+
+  <script>
+let tempSlider, windSlider, humiditySlider, pressureSlider, altitudeSlider;
+
+function setup() {
+  let canvas = createCanvas(800, 500);
+  canvas.parent('simulation');
+
+  // Sliders for variables
+  tempSlider = createSlider(-10, 40, 25); // Temperature range: -10°C to 40°C
+  tempSlider.position(20, 20);
+  windSlider = createSlider(0, 100, 30); // Wind speed: 0-100 km/h
+  windSlider.position(20, 60);
+  humiditySlider = createSlider(0, 100, 50); // Humidity: 0-100%
+  humiditySlider.position(20, 100);
+  pressureSlider = createSlider(900, 1100, 1013); // Pressure: 900-1100 hPa
+  pressureSlider.position(20, 140);
+  altitudeSlider = createSlider(0, 5000, 1000); // Altitude: 0-5000m
+  altitudeSlider.position(20, 180);
+}
+
+function draw() {
+  background(220);
+
+  // Get slider values
+  let temp = tempSlider.value();
+  let wind = windSlider.value();
+  let humidity = humiditySlider.value();
+  let pressure = pressureSlider.value();
+  let altitude = altitudeSlider.value();
+
+  // Visualize temperature (background color)
+  let tempColor = map(temp, -10, 40, 0, 255); // Blue (cold) to Red (hot)
+  background(tempColor, 100, 255 - tempColor);
+
+  // Visualize wind (moving particles)
+  for (let i = 0; i < wind / 5; i++) {
+    fill(255);
+    ellipse(random(width), random(height), 2, 2); // White particles
+  }
+
+  // Visualize humidity (cloud density)
+  let cloudDensity = map(humidity, 0, 100, 0, 50);
+  for (let i = 0; i < cloudDensity; i++) {
+    fill(200);
+    ellipse(random(width), 100 + random(50), 50, 20); // Clouds
+  }
+
+  // Visualize altitude (terrain height)
+  fill(50, 200, 50);
+  rect(0, height - 100 + altitude / 50, width, 100); // Green terrain
+
+  // Visualize cloud seeding (button)
+  fill(0);
+  rect(20, 220, 100, 30); // Button
+  fill(255);
+  text("CLOUD SEED", 30, 240); // Button text
+}
+
+// Add cloud seeding effect when clicked
+function mousePressed() {
+  if (mouseX > 20 && mouseX < 120 && mouseY > 220 && mouseY < 250) {
+    // Add rain particles
+    for (let i = 0; i < 100; i++) {
+      fill(0, 0, 255);
+      ellipse(random(width), random(200, 300), 5, 5); // Raindrops
+    }
+  }
+}
+  </script>
+</body>
+</html>
