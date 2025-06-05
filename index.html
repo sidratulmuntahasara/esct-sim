@@ -1,84 +1,771 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Weather Simulation</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body { background-color: black;}
-    .slider-container { margin: 20px; }
-    .slider-label { font-family: Arial; font-size: 12px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+      font-family: 'Open Sans', sans-serif;
+      color: #ecf0f1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    header {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .content {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .simulation-container {
+      flex: 1;
+      min-width: 300px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    #simulation {
+      width: 100%;
+      height: 500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .controls-container {
+      flex: 1;
+      min-width: 300px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    
+    .controls-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #00f2fe;
+      text-align: center;
+    }
+    
+    .slider-group {
+      margin-bottom: 25px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .slider-group:hover {
+      background: rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .slider-label {
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .slider-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 242, 254, 0.2);
+      border-radius: 50%;
+      padding: 5px;
+    }
+    
+    .slider-value {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #00f2fe;
+      min-width: 70px;
+      text-align: right;
+    }
+    
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .slider-minmax {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      min-width: 70px;
+      text-align: center;
+    }
+    
+    input[type="range"] {
+      flex: 1;
+      height: 8px;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #00f2fe;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.7);
+      transition: all 0.2s ease;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 1);
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      background: linear-gradient(to right, #3498db, #2c3e50);
+      color: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    }
+    
+    .btn:active {
+      transform: translateY(1px);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(to right, #00f2fe, #4facfe);
+    }
+    
+    .btn-warning {
+      background: linear-gradient(to right, #ff9a9e, #fad0c4);
+    }
+    
+    .data-display {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+    
+    .data-card {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .data-card:hover {
+      transform: translateY(-5px);
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .data-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    
+    .data-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+    }
+    
+    .data-unit {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+    
+    .data-card:nth-child(1) .data-value { color: #ff7675; }
+    .data-card:nth-child(2) .data-value { color: #74b9ff; }
+    .data-card:nth-child(3) .data-value { color: #a29bfe; }
+    .data-card:nth-child(4) .data-value { color: #55efc4; }
+    .data-card:nth-child(5) .data-value { color: #fdcb6e; }
+    
+    footer {
+      text-align: center;
+      padding: 20px;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="simulation"></div>
+  <div class="container">
+    <header>
+      <h1>Advanced Weather Simulation</h1>
+      <p class="subtitle">Adjust weather parameters to see real-time changes in atmospheric conditions. Visualize how temperature, humidity, wind, pressure, and altitude interact to create different weather patterns.</p>
+    </header>
+    
+    <div class="content">
+      <div class="simulation-container">
+        <div id="simulation"></div>
+      </div>
+      
+      <div class="controls-container">
+        <h2 class="controls-title">Weather Controls</h2>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label">
+              <div class="slider-icon">🌡️</div>
+              Temperature
+            </div>
+            <div class="slider-value" id="temp-value">25°C</div>
+          </div>
+          <div class="slider-container">
+            <div class="slider-minmax">-20°C</div>
+            <input type="range" min="-20" max="45" value="25" class="slider" id="temp-slider">
+            <div class="slider-minmax">45°C</div>
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label">
+              <div class="slider-icon">💨</div>
+              Wind Speed
+            </div>
+            <div class="slider-value" id="wind-value">30 km/h</div>
+          </div>
+          <div class="slider-container">
+            <div class="slider-minmax">0 km/h</div>
+            <input type="range" min="0" max="120" value="30" class="slider" id="wind-slider">
+            <div class="slider-minmax">120 km/h</div>
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label">
+              <div class="slider-icon">💧</div>
+              Humidity
+            </div>
+            <div class="slider-value" id="humidity-value">50%</div>
+          </div>
+          <div class="slider-container">
+            <div class="slider-minmax">0%</div>
+            <input type="range" min="0" max="100" value="50" class="slider" id="humidity-slider">
+            <div class="slider-minmax">100%</div>
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label">
+              <div class="slider-icon">📊</div>
+              Pressure
+            </div>
+            <div class="slider-value" id="pressure-value">1013 hPa</div>
+          </div>
+          <div class="slider-container">
+            <div class="slider-minmax">900 hPa</div>
+            <input type="range" min="900" max="1100" value="1013" class="slider" id="pressure-slider">
+            <div class="slider-minmax">1100 hPa</div>
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label">
+              <div class="slider-icon">⛰️</div>
+              Altitude
+            </div>
+            <div class="slider-value" id="altitude-value">1000 m</div>
+          </div>
+          <div class="slider-container">
+            <div class="slider-minmax">0 m</div>
+            <input type="range" min="0" max="5000" value="1000" class="slider" id="altitude-slider">
+            <div class="slider-minmax">5000 m</div>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="cloud-seed">☁️ Cloud Seed</button>
+          <button class="btn" id="reset-btn">🔄 Reset Values</button>
+          <button class="btn btn-warning" id="thunderstorm">⚡ Thunderstorm</button>
+        </div>
+        
+        <div class="data-display">
+          <div class="data-card">
+            <div class="data-label">Feels Like</div>
+            <div class="data-value" id="feels-like">27.3</div>
+            <span class="data-unit">°C</span>
+          </div>
+          <div class="data-card">
+            <div class="data-label">Dew Point</div>
+            <div class="data-value" id="dew-point">14.2</div>
+            <span class="data-unit">°C</span>
+          </div>
+          <div class="data-card">
+            <div class="data-label">Heat Index</div>
+            <div class="data-value" id="heat-index">26.8</div>
+            <span class="data-unit"></span>
+          </div>
+          <div class="data-card">
+            <div class="data-label">Wind Chill</div>
+            <div class="data-value" id="wind-chill">24.5</div>
+            <span class="data-unit">°C</span>
+          </div>
+          <div class="data-card">
+            <div class="data-label">Cloud Cover</div>
+            <div class="data-value" id="cloud-cover">42</div>
+            <span class="data-unit">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>Advanced Weather Simulation | Real-time Atmospheric Visualization | © 2025 ESCT</p>
+    </footer>
+  </div>
 
   <script>
-let tempSlider, windSlider, humiditySlider, pressureSlider, altitudeSlider;
-
-function setup() {
-  let canvas = createCanvas(800, 500);
-  canvas.parent('simulation');
-
-  // Sliders for variables
-  tempSlider = createSlider(-10, 40, 25); // Temperature range: -10°C to 40°C
-  tempSlider.position(20, 20);
-  windSlider = createSlider(0, 100, 30); // Wind speed: 0-100 km/h
-  windSlider.position(20, 60);
-  humiditySlider = createSlider(0, 100, 50); // Humidity: 0-100%
-  humiditySlider.position(20, 100);
-  pressureSlider = createSlider(900, 1100, 1013); // Pressure: 900-1100 hPa
-  pressureSlider.position(20, 140);
-  altitudeSlider = createSlider(0, 5000, 1000); // Altitude: 0-5000m
-  altitudeSlider.position(20, 180);
-}
-
-function draw() {
-  background(220);
-
-  // Get slider values
-  let temp = tempSlider.value();
-  let wind = windSlider.value();
-  let humidity = humiditySlider.value();
-  let pressure = pressureSlider.value();
-  let altitude = altitudeSlider.value();
-
-  // Visualize temperature (background color)
-  let tempColor = map(temp, -10, 40, 0, 255); // Blue (cold) to Red (hot)
-  background(tempColor, 100, 255 - tempColor);
-
-  // Visualize wind (moving particles)
-  for (let i = 0; i < wind / 5; i++) {
-    fill(255);
-    ellipse(random(width), random(height), 2, 2); // White particles
-  }
-
-  // Visualize humidity (cloud density)
-  let cloudDensity = map(humidity, 0, 100, 0, 50);
-  for (let i = 0; i < cloudDensity; i++) {
-    fill(200);
-    ellipse(random(width), 100 + random(50), 50, 20); // Clouds
-  }
-
-  // Visualize altitude (terrain height)
-  fill(50, 200, 50);
-  rect(0, height - 100 + altitude / 50, width, 100); // Green terrain
-
-  // Visualize cloud seeding (button)
-  fill(0);
-  rect(20, 220, 100, 30); // Button
-  fill(255);
-  text("CLOUD SEED", 30, 240); // Button text
-}
-
-// Add cloud seeding effect when clicked
-function mousePressed() {
-  if (mouseX > 20 && mouseX < 120 && mouseY > 220 && mouseY < 250) {
-    // Add rain particles
-    for (let i = 0; i < 100; i++) {
-      fill(0, 0, 255);
-      ellipse(random(width), random(200, 300), 5, 5); // Raindrops
+    // Particle system for wind and rain
+    class Particle {
+      constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type; // 'wind' or 'rain'
+        this.size = type === 'wind' ? random(2, 6) : random(3, 8);
+        this.speed = type === 'wind' ? random(1, 5) : random(5, 10);
+        this.alpha = type === 'wind' ? random(100, 200) : random(150, 255);
+        this.windInfluence = random(0.5, 2);
+      }
+      
+      update(windSpeed) {
+        if (this.type === 'wind') {
+          this.x += this.speed + windSpeed * this.windInfluence;
+          if (this.x > width) {
+            this.x = -10;
+            this.y = random(height * 0.2, height * 0.8);
+          }
+        } else { // rain
+          this.y += this.speed;
+          this.x += windSpeed * 0.2;
+          if (this.y > height) {
+            this.reset();
+          }
+        }
+      }
+      
+      reset() {
+        this.x = random(width);
+        this.y = random(-100, -10);
+      }
+      
+      display() {
+        noStroke();
+        if (this.type === 'wind') {
+          fill(255, 255, 255, this.alpha);
+          ellipse(this.x, this.y, this.size);
+        } else { // rain
+          fill(100, 180, 255, this.alpha);
+          ellipse(this.x, this.y, this.size * 0.6, this.size);
+        }
+      }
     }
-  }
-}
+    
+    // Cloud class for visualization
+    class Cloud {
+      constructor() {
+        this.x = random(-100, width + 100);
+        this.y = random(50, 150);
+        this.speed = random(0.1, 0.5);
+        this.size = random(60, 120);
+        this.alpha = random(150, 220);
+      }
+      
+      update(windSpeed) {
+        this.x += this.speed + windSpeed * 0.1;
+        if (this.x > width + 200) {
+          this.x = -200;
+          this.y = random(50, 150);
+        }
+      }
+      
+      display() {
+        noStroke();
+        fill(230, 230, 255, this.alpha);
+        ellipse(this.x, this.y, this.size, this.size * 0.6);
+        ellipse(this.x - this.size * 0.4, this.y, this.size * 0.8, this.size * 0.5);
+        ellipse(this.x + this.size * 0.4, this.y, this.size * 0.8, this.size * 0.5);
+      }
+    }
+    
+    // Main variables
+    let windParticles = [];
+    let rainParticles = [];
+    let clouds = [];
+    let isRaining = false;
+    let tempSlider, windSlider, humiditySlider, pressureSlider, altitudeSlider;
+    
+    function setup() {
+      let canvas = createCanvas(800, 500);
+      canvas.parent('simulation');
+      
+      // Create particles
+      for (let i = 0; i < 100; i++) {
+        windParticles.push(new Particle(random(width), random(height), 'wind'));
+      }
+      
+      for (let i = 0; i < 30; i++) {
+        clouds.push(new Cloud());
+      }
+      
+      // Initialize slider references
+      tempSlider = document.getElementById('temp-slider');
+      windSlider = document.getElementById('wind-slider');
+      humiditySlider = document.getElementById('humidity-slider');
+      pressureSlider = document.getElementById('pressure-slider');
+      altitudeSlider = document.getElementById('altitude-slider');
+      
+      // Add event listeners
+      document.getElementById('cloud-seed').addEventListener('click', cloudSeed);
+      document.getElementById('reset-btn').addEventListener('click', resetValues);
+      document.getElementById('thunderstorm').addEventListener('click', createThunderstorm);
+      
+      // Update value displays initially
+      updateValueDisplays();
+      updateCalculatedValues();
+    }
+    
+    function draw() {
+      // Get slider values
+      let temp = parseInt(tempSlider.value);
+      let wind = parseInt(windSlider.value);
+      let humidity = parseInt(humiditySlider.value);
+      let pressure = parseInt(pressureSlider.value);
+      let altitude = parseInt(altitudeSlider.value);
+      
+      // Update calculated values
+      updateCalculatedValues();
+      
+      // Draw gradient background based on temperature
+      let tempColor = map(temp, -20, 45, 0, 255);
+      let bgColor = color(tempColor, 100, 255 - tempColor);
+      background(bgColor);
+      
+      // Draw sun or moon based on temperature
+      drawCelestialBody(temp);
+      
+      // Draw mountains based on altitude
+      drawMountains(altitude);
+      
+      // Update and display clouds
+      for (let cloud of clouds) {
+        cloud.update(wind);
+        cloud.display();
+      }
+      
+      // Update and display wind particles
+      for (let particle of windParticles) {
+        particle.update(wind);
+        particle.display();
+      }
+      
+      // Update and display rain particles if raining
+      if (isRaining) {
+        for (let particle of rainParticles) {
+          particle.update(wind);
+          particle.display();
+        }
+        
+        // Gradually stop rain
+        if (frameCount % 60 === 0 && humidity < 70) {
+          rainParticles = rainParticles.filter(p => p.y < height);
+          if (rainParticles.length === 0) isRaining = false;
+        }
+      }
+      
+      // Draw ground
+      drawGround(altitude, humidity);
+      
+      // Draw trees
+      drawTrees(altitude, wind);
+    }
+    
+    function drawCelestialBody(temp) {
+      let isDay = temp > 0;
+      let yPos = isDay ? 100 : 120;
+      let size = isDay ? 70 : 60;
+      
+      noStroke();
+      if (isDay) {
+        fill(255, 255, 150); // Sun
+      } else {
+        fill(220, 220, 240); // Moon
+      }
+      
+      ellipse(width - 100, yPos, size);
+      
+      if (!isDay) {
+        // Draw moon craters
+        fill(180, 180, 200);
+        ellipse(width - 120, yPos - 10, 10);
+        ellipse(width - 90, yPos + 15, 8);
+        ellipse(width - 100, yPos, 12);
+      }
+    }
+    
+    function drawMountains(altitude) {
+      let mountainHeight = map(altitude, 0, 5000, 50, 300);
+      
+      // Draw mountains
+      fill(80, 80, 100);
+      beginShape();
+      vertex(0, height);
+      for (let i = 0; i < width; i += 20) {
+        let h = mountainHeight * noise(i * 0.01);
+        vertex(i, height - h);
+      }
+      vertex(width, height);
+      endShape(CLOSE);
+      
+      // Draw mountain details
+      fill(60, 60, 80);
+      beginShape();
+      vertex(150, height);
+      for (let i = 150; i < width; i += 15) {
+        let h = mountainHeight * 0.7 * noise(i * 0.02 + 1000);
+        vertex(i, height - h);
+      }
+      vertex(width, height);
+      endShape(CLOSE);
+    }
+    
+    function drawGround(altitude, humidity) {
+      let groundLevel = map(altitude, 0, 5000, height - 50, height - 300);
+      let greenLevel = map(humidity, 0, 100, 100, 200);
+      
+      // Draw ground
+      fill(120, 80, 50);
+      rect(0, groundLevel, width, height - groundLevel);
+      
+      // Draw grass
+      fill(80, greenLevel, 70);
+      rect(0, groundLevel, width, 20);
+      
+      // Draw grass details
+      fill(60, greenLevel - 20, 50);
+      for (let i = 0; i < width; i += 10) {
+        let h = map(noise(i * 0.1), 0, 1, 3, 8);
+        line(i, groundLevel, i, groundLevel - h);
+      }
+    }
+    
+    function drawTrees(altitude, wind) {
+      let groundLevel = map(altitude, 0, 5000, height - 50, height - 300);
+      let treeSpacing = map(altitude, 0, 5000, 70, 200);
+      let windEffect = map(wind, 0, 120, 0, 0.5);
+      
+      for (let x = 50; x < width - 50; x += treeSpacing) {
+        // Draw trunk
+        fill(90, 60, 40);
+        rect(x, groundLevel - 40, 10, 40);
+        
+        // Draw leaves
+        fill(30, 120, 60);
+        let sway = sin(frameCount * 0.05 + x) * 5 * windEffect;
+        ellipse(x + sway, groundLevel - 50, 40, 60);
+        ellipse(x + 10 + sway, groundLevel - 70, 50, 50);
+        ellipse(x - 10 + sway, groundLevel - 70, 40, 40);
+      }
+    }
+    
+    function cloudSeed() {
+      isRaining = true;
+      humiditySlider.value = parseInt(humiditySlider.value) + 20;
+      if (humiditySlider.value > 100) humiditySlider.value = 100;
+      
+      // Create rain particles
+      for (let i = 0; i < 200; i++) {
+        rainParticles.push(new Particle(random(width), random(height * 0.3), 'rain'));
+      }
+      
+      updateValueDisplays();
+      updateCalculatedValues();
+    }
+    
+    function createThunderstorm() {
+      // Set storm conditions
+      tempSlider.value = 18;
+      windSlider.value = 85;
+      humiditySlider.value = 95;
+      pressureSlider.value = 980;
+      cloudSeed();
+      
+      // Flash effect
+      background(255);
+      setTimeout(() => background(0), 100);
+      
+      updateValueDisplays();
+      updateCalculatedValues();
+    }
+    
+    function resetValues() {
+      tempSlider.value = 25;
+      windSlider.value = 30;
+      humiditySlider.value = 50;
+      pressureSlider.value = 1013;
+      altitudeSlider.value = 1000;
+      isRaining = false;
+      rainParticles = [];
+      
+      updateValueDisplays();
+      updateCalculatedValues();
+    }
+    
+    function updateValueDisplays() {
+      document.getElementById('temp-value').textContent = `${tempSlider.value}°C`;
+      document.getElementById('wind-value').textContent = `${windSlider.value} km/h`;
+      document.getElementById('humidity-value').textContent = `${humiditySlider.value}%`;
+      document.getElementById('pressure-value').textContent = `${pressureSlider.value} hPa`;
+      document.getElementById('altitude-value').textContent = `${altitudeSlider.value} m`;
+    }
+    
+    function updateCalculatedValues() {
+      let temp = parseInt(tempSlider.value);
+      let wind = parseInt(windSlider.value);
+      let humidity = parseInt(humiditySlider.value);
+      
+      // Calculate feels like temperature (simplified)
+      let feelsLike = temp + (humidity / 25) - (wind / 20);
+      document.getElementById('feels-like').textContent = feelsLike.toFixed(1);
+      
+      // Calculate dew point (simplified)
+      let dewPoint = temp - ((100 - humidity) / 5);
+      document.getElementById('dew-point').textContent = dewPoint.toFixed(1);
+      
+      // Calculate heat index (simplified)
+      let heatIndex = temp + (humidity / 100 * temp * 0.1);
+      document.getElementById('heat-index').textContent = heatIndex.toFixed(1);
+      
+      // Calculate wind chill (simplified)
+      let windChill = temp - (wind / 10);
+      document.getElementById('wind-chill').textContent = windChill.toFixed(1);
+      
+      // Calculate cloud cover based on humidity
+      let cloudCover = humidity * 0.7 + (temp > 30 ? -10 : 0);
+      cloudCover = constrain(cloudCover, 0, 100);
+      document.getElementById('cloud-cover').textContent = Math.round(cloudCover);
+    }
+    
+    // Add input event listeners to sliders
+    const sliders = document.querySelectorAll('.slider');
+    sliders.forEach(slider => {
+      slider.addEventListener('input', () => {
+        updateValueDisplays();
+        updateCalculatedValues();
+      });
+    });
   </script>
 </body>
 </html>
